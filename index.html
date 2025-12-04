@@ -1,0 +1,1487 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Iris | Conectamos y Escuchamos</title>
+    <link href="https://fonts.googleapis.com/css2?family=Crimson+Pro:wght@400;600;700&family=DM+Sans:wght@400;500;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #5b21b6;
+            --secondary: #7c3aed;
+            --accent: #8b5cf6;
+            --bg-dark: #1e1b4b;
+            --bg-light: #faf5ff;
+            --text-dark: #1e1b4b;
+            --text-light: #ffffff;
+            --border: #ddd6fe;
+            --success: #7c3aed;
+            --warning: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'DM Sans', sans-serif;
+            background: linear-gradient(135deg, #ffffff 0%, #faf5ff 50%, #f3e8ff 100%);
+            color: var(--text-dark);
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        .grain-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 400 400' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)' opacity='0.05'/%3E%3C/svg%3E");
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 2;
+        }
+
+        nav {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 1rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            border-bottom: 2px solid rgba(91, 33, 182, 0.1);
+            box-shadow: 0 4px 20px rgba(91, 33, 182, 0.1);
+        }
+
+        .nav-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            display: flex;
+            align-items: center;
+            gap: 0.8rem;
+            text-decoration: none;
+        }
+
+        .nav-logo-icon {
+            width: 45px;
+            height: 45px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3);
+        }
+
+        .nav-logo-content {
+            position: relative;
+            width: 30px;
+            height: 25px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-logo-node {
+            width: 7px;
+            height: 7px;
+            background: white;
+            border-radius: 50%;
+            z-index: 2;
+        }
+
+        .nav-logo-bridge {
+            position: absolute;
+            width: 16px;
+            height: 1.5px;
+            background: white;
+            left: 7px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .nav-brand {
+            font-family: 'Crimson Pro', serif;
+            font-size: 1.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5b21b6, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.95rem;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 8px;
+            position: relative;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            background: rgba(91, 33, 182, 0.08);
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 2px;
+            background: var(--primary);
+            transition: width 0.3s ease;
+        }
+
+        .nav-links a:hover::after {
+            width: 80%;
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white !important;
+            padding: 0.7rem 1.5rem !important;
+            border-radius: 25px;
+            box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3);
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(91, 33, 182, 0.4);
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+        }
+
+        .nav-cta::after {
+            display: none;
+        }
+
+        .mobile-menu-btn {
+            display: none;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            color: var(--primary);
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        @media (max-width: 968px) {
+            .nav-links {
+                position: fixed;
+                top: 73px;
+                left: -100%;
+                width: 100%;
+                height: calc(100vh - 73px);
+                background: rgba(255, 255, 255, 0.98);
+                backdrop-filter: blur(10px);
+                flex-direction: column;
+                justify-content: flex-start;
+                padding: 2rem;
+                gap: 0;
+                transition: left 0.3s ease;
+                border-top: 2px solid rgba(91, 33, 182, 0.1);
+            }
+
+            .nav-links.active {
+                left: 0;
+            }
+
+            .nav-links li {
+                width: 100%;
+                padding: 0.5rem 0;
+            }
+
+            .nav-links a {
+                display: block;
+                width: 100%;
+                padding: 1rem;
+                text-align: center;
+            }
+
+            .mobile-menu-btn {
+                display: block;
+            }
+        }
+
+        header {
+            padding: 3rem 0;
+            text-align: center;
+            animation: fadeInDown 0.8s ease-out;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .logo-icon {
+            width: 90px;
+            height: 90px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            animation: pulse 3s ease-in-out infinite;
+            box-shadow: 0 12px 40px rgba(91, 33, 182, 0.4);
+            position: relative;
+        }
+
+        .logo-content {
+            position: relative;
+            width: 60px;
+            height: 50px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo-node {
+            width: 14px;
+            height: 14px;
+            background: white;
+            border-radius: 50%;
+            position: relative;
+            box-shadow: 0 2px 10px rgba(255, 255, 255, 0.4);
+            z-index: 2;
+        }
+
+        .logo-node::before {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            border-radius: 50%;
+            top: -4px;
+            left: -4px;
+            animation: ripple 2s ease-out infinite;
+        }
+
+        .logo-node::after {
+            content: '';
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: rgba(91, 33, 182, 0.3);
+            border-radius: 50%;
+            top: 3px;
+            left: 3px;
+        }
+
+        .logo-bridge-container {
+            position: absolute;
+            width: 32px;
+            height: 30px;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+        }
+
+        .logo-bridge-line {
+            position: absolute;
+            width: 32px;
+            height: 2.5px;
+            background: white;
+            left: 0;
+            top: 50%;
+            transform: translateY(-50%);
+            box-shadow: 0 2px 8px rgba(255, 255, 255, 0.3);
+        }
+
+        .logo-bridge-support {
+            position: absolute;
+            width: 2px;
+            height: 10px;
+            background: rgba(255, 255, 255, 0.7);
+        }
+
+        .logo-bridge-support:nth-child(2) {
+            left: 8px;
+            top: 10px;
+        }
+
+        .logo-bridge-support:nth-child(3) {
+            left: 15px;
+            top: 7px;
+        }
+
+        .logo-bridge-support:nth-child(4) {
+            right: 8px;
+            top: 10px;
+        }
+
+        .logo-arch {
+            position: absolute;
+            width: 20px;
+            height: 12px;
+            border: 2px solid rgba(255, 255, 255, 0.4);
+            border-bottom: none;
+            border-radius: 20px 20px 0 0;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+        }
+
+        @keyframes ripple {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            100% {
+                transform: scale(1.6);
+                opacity: 0;
+            }
+        }
+
+        h1 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 4rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #5b21b6, #7c3aed);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            letter-spacing: -0.02em;
+            line-height: 1.2;
+        }
+
+        .subtitle {
+            font-size: 1.3rem;
+            color: #5b21b6;
+            margin-top: 1rem;
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 3rem;
+            padding: 3rem 0;
+            animation: fadeInUp 0.8s ease-out 0.2s both;
+        }
+
+        .info-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(91, 33, 182, 0.2);
+            border-radius: 20px;
+            padding: 2.5rem;
+            height: fit-content;
+            position: sticky;
+            top: 2rem;
+            box-shadow: 0 10px 40px rgba(91, 33, 182, 0.15);
+        }
+
+        .info-title {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            color: var(--primary);
+        }
+
+        .info-item {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+            padding: 1rem;
+            background: linear-gradient(135deg, rgba(91, 33, 182, 0.05), rgba(124, 58, 237, 0.05));
+            border-radius: 12px;
+            border-left: 3px solid var(--primary);
+            transition: all 0.3s ease;
+        }
+
+        .info-item:hover {
+            transform: translateX(5px);
+            background: linear-gradient(135deg, rgba(91, 33, 182, 0.1), rgba(124, 58, 237, 0.1));
+            box-shadow: 0 4px 12px rgba(91, 33, 182, 0.2);
+        }
+
+        .info-icon {
+            font-size: 1.5rem;
+            min-width: 30px;
+        }
+
+        .info-text h3 {
+            font-size: 1.1rem;
+            margin-bottom: 0.5rem;
+            color: var(--primary);
+        }
+
+        .info-text p {
+            font-size: 0.95rem;
+            color: rgba(30, 27, 75, 0.7);
+            line-height: 1.6;
+        }
+
+        .form-panel {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 3rem;
+            box-shadow: 0 20px 60px rgba(91, 33, 182, 0.2);
+            border: 2px solid rgba(91, 33, 182, 0.1);
+        }
+
+        .form-header {
+            margin-bottom: 2rem;
+        }
+
+        .form-header h2 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2.2rem;
+            color: var(--primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .form-header p {
+            color: rgba(0, 0, 0, 0.6);
+            font-size: 1rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+            animation: slideInRight 0.5s ease-out both;
+        }
+
+        .form-group:nth-child(1) { animation-delay: 0.1s; }
+        .form-group:nth-child(2) { animation-delay: 0.2s; }
+        .form-group:nth-child(3) { animation-delay: 0.3s; }
+        .form-group:nth-child(4) { animation-delay: 0.4s; }
+        .form-group:nth-child(5) { animation-delay: 0.5s; }
+        .form-group:nth-child(6) { animation-delay: 0.6s; }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            color: var(--text-dark);
+            font-weight: 500;
+            font-size: 0.95rem;
+        }
+
+        .required {
+            color: var(--primary);
+        }
+
+        input[type="text"],
+        input[type="email"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.9rem 1.2rem;
+            border: 2px solid var(--border);
+            border-radius: 12px;
+            font-family: 'DM Sans', sans-serif;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+            background: white;
+            color: var(--text-dark);
+        }
+
+        input[type="text"]:focus,
+        input[type="email"]:focus,
+        select:focus,
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(91, 33, 182, 0.1);
+            transform: translateY(-2px);
+        }
+
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .file-upload {
+            border: 2px dashed var(--border);
+            border-radius: 12px;
+            padding: 2rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: rgba(91, 33, 182, 0.03);
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: rgba(91, 33, 182, 0.08);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-icon {
+            font-size: 2.5rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .checkbox-group {
+            display: flex;
+            align-items: start;
+            gap: 0.8rem;
+            margin-top: 1.5rem;
+        }
+
+        input[type="checkbox"] {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            accent-color: var(--primary);
+            margin-top: 2px;
+        }
+
+        .checkbox-label {
+            font-size: 0.9rem;
+            color: rgba(0, 0, 0, 0.7);
+            line-height: 1.5;
+        }
+
+        .submit-btn {
+            width: 100%;
+            padding: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin-top: 1rem;
+            box-shadow: 0 4px 15px rgba(91, 33, 182, 0.4);
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(91, 33, 182, 0.5);
+        }
+
+        .submit-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .security-badge {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            margin-top: 1.5rem;
+            padding: 1rem;
+            background: rgba(91, 33, 182, 0.08);
+            border-radius: 10px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+        }
+
+        .success-message {
+            display: none;
+            background: linear-gradient(135deg, #5b21b6, #7c3aed);
+            color: white;
+            padding: 2rem;
+            border-radius: 12px;
+            text-align: center;
+            animation: slideInUp 0.5s ease-out;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        .success-message h3 {
+            font-family: 'Crimson Pro', serif;
+            font-size: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .tracking-code {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 1rem;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 1.2rem;
+            margin: 1rem 0;
+            letter-spacing: 2px;
+        }
+
+        footer {
+            text-align: center;
+            padding: 3rem 0;
+            color: rgba(30, 27, 75, 0.6);
+            font-size: 0.9rem;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes slideInRight {
+            from {
+                opacity: 0;
+                transform: translateX(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        @keyframes slideInUp {
+            from {
+                opacity: 0;
+                transform: translateY(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        @media (max-width: 968px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+
+            .info-panel {
+                position: relative;
+                top: 0;
+            }
+
+            h1 {
+                font-size: 2.5rem;
+            }
+
+            .form-panel {
+                padding: 2rem;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .container {
+                padding: 0 1rem;
+            }
+
+            h1 {
+                font-size: 2rem;
+            }
+
+            .subtitle {
+                font-size: 1rem;
+            }
+
+            .form-panel {
+                padding: 1.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="grain-overlay"></div>
+    
+    <nav>
+        <div class="nav-container">
+            <a href="#inicio" class="nav-logo">
+                <div class="nav-logo-icon">
+                    <div class="nav-logo-content">
+                        <div class="nav-logo-node"></div>
+                        <div class="nav-logo-bridge"></div>
+                        <div class="nav-logo-node"></div>
+                    </div>
+                </div>
+                <span class="nav-brand">Iris</span>
+            </a>
+            
+            <button class="mobile-menu-btn" onclick="toggleMenu()">☰</button>
+            
+            <ul class="nav-links" id="navLinks">
+                <li><a href="#quienes-somos">¿Quiénes Somos?</a></li>
+                <li><a href="#como-funciona">¿Cómo Funciona?</a></li>
+                <li><a href="#rastrear">Rastrear Denuncia</a></li>
+                <li><a href="#clientes">Clientes</a></li>
+                <li><a href="#casos-exito">Casos de Éxito</a></li>
+                <li><a href="#denuncia" class="nav-cta">Hacer Denuncia</a></li>
+            </ul>
+        </div>
+    </nav>
+    
+    <div class="container" id="inicio">
+        <header>
+            <div class="logo">
+                <div class="logo-icon">
+                    <div class="logo-content">
+                        <div class="logo-node"></div>
+                        <div class="logo-bridge-container">
+                            <div class="logo-bridge-line"></div>
+                            <div class="logo-bridge-support"></div>
+                            <div class="logo-bridge-support"></div>
+                            <div class="logo-bridge-support"></div>
+                            <div class="logo-arch"></div>
+                        </div>
+                        <div class="logo-node"></div>
+                    </div>
+                </div>
+            </div>
+            <h1>Iris</h1>
+            <p class="subtitle">Conectamos, Escuchamos y Somos el Puente</p>
+        </header>
+
+        <!-- Tracking Section -->
+        <section id="rastrear" style="max-width: 800px; margin: 3rem auto; padding: 2.5rem; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); border-radius: 20px; box-shadow: 0 20px 60px rgba(91, 33, 182, 0.2); border: 2px solid rgba(91, 33, 182, 0.1);">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <div style="display: inline-flex; align-items: center; justify-content: center; width: 70px; height: 70px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; margin-bottom: 1.5rem; box-shadow: 0 8px 25px rgba(91, 33, 182, 0.3);">
+                    <span style="font-size: 2rem;">🔍</span>
+                </div>
+                <h2 style="font-family: 'Crimson Pro', serif; font-size: 2.5rem; color: var(--primary); margin-bottom: 0.5rem;">Rastrear tu Denuncia</h2>
+                <p style="color: rgba(0, 0, 0, 0.6); font-size: 1rem;">Ingresa tu código de seguimiento para consultar el estado</p>
+            </div>
+
+            <div id="trackingForm">
+                <div style="margin-bottom: 1.5rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; color: var(--text-dark); font-weight: 500;">Código de Seguimiento</label>
+                    <input 
+                        type="text" 
+                        id="trackingCodeInput" 
+                        placeholder="XXXXX-XXXXX" 
+                        maxlength="11"
+                        style="width: 100%; padding: 1rem 1.5rem; border: 2px solid var(--border); border-radius: 12px; font-family: 'Courier New', monospace; font-size: 1.2rem; text-align: center; letter-spacing: 2px; text-transform: uppercase; transition: all 0.3s ease;"
+                        onkeyup="formatTrackingCode(this)"
+                    >
+                </div>
+
+                <button onclick="checkStatus()" style="width: 100%; padding: 1rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border: none; border-radius: 12px; font-size: 1.1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.4);">
+                    🔍 Consultar Estado
+                </button>
+            </div>
+
+            <div id="trackingResult" style="display: none; margin-top: 2rem; padding: 2rem; background: linear-gradient(135deg, rgba(91, 33, 182, 0.05), rgba(124, 58, 237, 0.05)); border-radius: 15px; border-left: 5px solid var(--primary);">
+                <h3 style="color: var(--primary); margin-bottom: 1rem; font-size: 1.3rem;">Estado de tu Denuncia</h3>
+                
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; margin-bottom: 0.3rem;">Código:</p>
+                    <p style="font-family: 'Courier New', monospace; font-size: 1.1rem; color: var(--text-dark); font-weight: 600;" id="displayCode">XXXXX-XXXXX</p>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; margin-bottom: 0.3rem;">Estado Actual:</p>
+                    <div style="display: inline-block; padding: 0.5rem 1.5rem; background: var(--primary); color: white; border-radius: 20px; font-weight: 600;" id="displayStatus">
+                        En Investigación
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 1.5rem;">
+                    <p style="color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; margin-bottom: 0.8rem;">Progreso:</p>
+                    <div style="position: relative; background: rgba(91, 33, 182, 0.1); height: 10px; border-radius: 10px; overflow: hidden;">
+                        <div id="progressBar" style="width: 40%; height: 100%; background: linear-gradient(90deg, var(--primary), var(--secondary)); border-radius: 10px; transition: width 0.5s ease;"></div>
+                    </div>
+                    <p style="color: var(--text-dark); font-size: 0.85rem; margin-top: 0.5rem;" id="progressText">Paso 2 de 5: Investigación en proceso</p>
+                </div>
+
+                <div>
+                    <p style="color: rgba(0, 0, 0, 0.6); font-size: 0.9rem; margin-bottom: 0.5rem;">Última Actualización:</p>
+                    <p style="color: var(--text-dark);" id="lastUpdate">Hace 2 días</p>
+                </div>
+
+                <div style="margin-top: 1.5rem; padding: 1rem; background: rgba(255, 255, 255, 0.7); border-radius: 10px;">
+                    <p style="font-size: 0.9rem; color: var(--text-dark); line-height: 1.6;">
+                        <strong>Próximos pasos:</strong> El equipo de investigación está realizando entrevistas con las partes involucradas. Recibirás una actualización cuando el proceso avance a la siguiente fase.
+                    </p>
+                </div>
+
+                <button onclick="resetTracking()" style="width: 100%; padding: 0.8rem; background: white; color: var(--primary); border: 2px solid var(--primary); border-radius: 12px; font-weight: 600; cursor: pointer; margin-top: 1.5rem; transition: all 0.3s ease;">
+                    Consultar Otro Código
+                </button>
+            </div>
+
+            <div style="margin-top: 2rem; padding: 1.5rem; background: rgba(91, 33, 182, 0.05); border-radius: 10px; text-align: center;">
+                <p style="font-size: 0.9rem; color: var(--text-dark); margin-bottom: 0.5rem;">
+                    <strong>Nota:</strong> En producción, este sistema se conectaría a una base de datos segura para mostrar el estado real de tu denuncia.
+                </p>
+                <p style="font-size: 0.85rem; color: rgba(0, 0, 0, 0.6);">
+                    Actualmente es una demostración del flujo de seguimiento.
+                </p>
+            </div>
+        </section>
+
+        <div class="main-content" id="denuncia">
+            <aside class="info-panel">
+                <h2 class="info-title">¿Cómo funciona Iris?</h2>
+                
+                <div class="info-item">
+                    <div class="info-icon">📝</div>
+                    <div class="info-text">
+                        <h3>Recibimos tu denuncia</h3>
+                        <p>Por teléfono, WhatsApp o correo electrónico. Se abre un expediente de forma inmediata.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">🔍</div>
+                    <div class="info-text">
+                        <h3>Investigación profesional</h3>
+                        <p>Se notifica a las partes y se realizan entrevistas confidenciales para esclarecer los hechos.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">🔐</div>
+                    <div class="info-text">
+                        <h3>100% Confidencial</h3>
+                        <p>Tu identidad está protegida. No se registra tu IP y toda la información es encriptada.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">📋</div>
+                    <div class="info-text">
+                        <h3>Recomendaciones expertas</h3>
+                        <p>Se entrega un expediente completo con recomendaciones al Comité de la empresa.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">⚖️</div>
+                    <div class="info-text">
+                        <h3>Resolución justa</h3>
+                        <p>El Comité emite una resolución basada en las recomendaciones y el marco legal vigente.</p>
+                    </div>
+                </div>
+
+                <div class="info-item">
+                    <div class="info-icon">🌉</div>
+                    <div class="info-text">
+                        <h3>Somos el puente</h3>
+                        <p>Conectamos múltiples empresas con un sistema de denuncias profesional y especializado.</p>
+                    </div>
+                </div>
+            </aside>
+
+            <main class="form-panel">
+                <div id="formContainer">
+                    <div class="form-header">
+                        <h2>Tu voz será escuchada</h2>
+                        <p>Completa el formulario con todos los detalles posibles. Un equipo especializado investigará tu caso de manera profesional y confidencial, entrevistará a las partes y generará recomendaciones para el Comité de tu empresa. Campos marcados con <span class="required">*</span> son obligatorios.</p>
+                    </div>
+
+                    <form id="denunciaForm">
+                        <div class="form-group">
+                            <label for="empresa">Empresa u Organización <span class="required">*</span></label>
+                            <select id="empresa" required>
+                                <option value="">Selecciona la empresa</option>
+                                <option value="empresa1">Empresa 1</option>
+                                <option value="empresa2">Empresa 2</option>
+                                <option value="empresa3">Empresa 3</option>
+                                <option value="empresa4">Empresa 4</option>
+                                <option value="empresa5">Empresa 5</option>
+                                <option value="otra">Otra organización</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="categoria">Tipo de Denuncia <span class="required">*</span></label>
+                            <select id="categoria" required>
+                                <option value="">Selecciona una categoría</option>
+                                <option value="acoso_laboral">Acoso Laboral</option>
+                                <option value="acoso_sexual">Acoso Sexual</option>
+                                <option value="violencia_laboral">Violencia Laboral</option>
+                                <option value="discriminacion">Discriminación</option>
+                                <option value="violencia_genero">Violencia en Razón de Género</option>
+                                <option value="abuso_autoridad">Abuso de Autoridad</option>
+                                <option value="conflicto_interes">Conflicto de Interés</option>
+                                <option value="fraude">Fraude o Corrupción</option>
+                                <option value="seguridad">Problemas de Seguridad</option>
+                                <option value="otro">Otro</option>
+                            </select>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="titulo">Título de la Denuncia <span class="required">*</span></label>
+                            <input type="text" id="titulo" placeholder="Resumen breve de la situación" required>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="descripcion">Descripción Detallada <span class="required">*</span></label>
+                            <textarea id="descripcion" placeholder="Describe los hechos con el mayor detalle posible: ¿Qué sucedió? ¿Cuándo? ¿Dónde? ¿Quiénes estuvieron involucrados?" required></textarea>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="ubicacion">Ubicación del Incidente</label>
+                            <input type="text" id="ubicacion" placeholder="Ciudad, edificio, departamento, etc.">
+                        </div>
+
+                        <div class="form-group">
+                            <label for="fecha">Fecha Aproximada del Incidente</label>
+                            <input type="text" id="fecha" placeholder="Ej: Enero 2024, hace 2 semanas, etc.">
+                        </div>
+
+                        <div class="form-group">
+                            <label>Evidencia (Opcional)</label>
+                            <div class="file-upload" onclick="document.getElementById('archivo').click()">
+                                <input type="file" id="archivo" multiple accept="image/*,application/pdf,.doc,.docx">
+                                <div class="file-icon">📎</div>
+                                <p><strong>Haz clic para adjuntar archivos</strong></p>
+                                <p style="font-size: 0.85rem; color: rgba(0,0,0,0.5); margin-top: 0.5rem;">
+                                    Imágenes, documentos PDF o Word (Máx. 10MB por archivo)
+                                </p>
+                            </div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="contacto">Email de Contacto (Opcional y Confidencial)</label>
+                            <input type="email" id="contacto" placeholder="Solo si deseas recibir actualizaciones">
+                            <p style="font-size: 0.85rem; color: rgba(0,0,0,0.5); margin-top: 0.5rem;">
+                                Si proporcionas un email, permanecerá completamente confidencial y encriptado.
+                            </p>
+                        </div>
+
+                        <div class="checkbox-group">
+                            <input type="checkbox" id="terminos" required>
+                            <label for="terminos" class="checkbox-label">
+                                Confirmo que la información proporcionada es verídica y entiendo que realizar denuncias falsas puede tener consecuencias legales. <span class="required">*</span>
+                            </label>
+                        </div>
+
+                        <button type="submit" class="submit-btn">💜 Enviar con Iris</button>
+
+                        <div class="security-badge">
+                            <span>🔒</span>
+                            <span>Conexión Segura SSL | Sin Registro de IP | Completamente Anónimo</span>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="success-message" id="successMessage">
+                    <h3>✨ Tu denuncia ha sido recibida</h3>
+                    <p>Se ha abierto un expediente y un equipo de profesionales especializados comenzará la investigación. Se notificará a las partes involucradas y se realizarán las entrevistas correspondientes.</p>
+                    <p style="margin-top: 1rem; font-weight: 600;">Tu código de seguimiento es:</p>
+                    <div class="tracking-code" id="trackingCode">XXXXX-XXXXX</div>
+                    <div style="margin-top: 1rem; padding: 1rem; background: rgba(255, 255, 255, 0.2); border-radius: 10px;">
+                        <p style="font-size: 0.95rem; margin-bottom: 0.5rem;">
+                            <strong>⚠️ IMPORTANTE: Guarda este código</strong>
+                        </p>
+                        <p style="font-size: 0.9rem;">
+                            Con este código podrás consultar el estado de tu denuncia en cualquier momento usando la sección <strong>"Rastrear Denuncia"</strong> en el menú principal. Sin este código no podrás dar seguimiento a tu caso.
+                        </p>
+                    </div>
+                    <p style="margin-top: 1rem; font-size: 0.9rem;">
+                        El proceso incluye: Investigación → Entrevistas → Recomendaciones al Comité → Resolución.
+                    </p>
+                    <div style="display: flex; gap: 1rem; margin-top: 2rem;">
+                        <button class="submit-btn" onclick="location.reload()">
+                            Realizar Otra Denuncia
+                        </button>
+                        <button onclick="goToTracking()" style="flex: 1; padding: 1.2rem; background: white; color: var(--primary); border: 2px solid white; border-radius: 12px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+                            🔍 Ir a Rastreo
+                        </button>
+                    </div>
+                </div>
+            </main>
+        </div>
+
+        <!-- Quiénes Somos Section -->
+        <section id="quienes-somos" style="padding: 5rem 0; background: rgba(255, 255, 255, 0.5); border-radius: 30px; margin: 3rem 0;">
+            <div style="max-width: 1000px; margin: 0 auto; padding: 0 2rem;">
+                <h2 style="font-family: 'Crimson Pro', serif; font-size: 3rem; color: var(--primary); text-align: center; margin-bottom: 2rem;">¿Quiénes Somos?</h2>
+                
+                <div style="display: grid; gap: 2rem;">
+                    <div style="background: white; padding: 2.5rem; border-radius: 20px; border-left: 5px solid var(--primary); box-shadow: 0 10px 30px rgba(91, 33, 182, 0.1);">
+                        <h3 style="color: var(--primary); font-size: 1.5rem; margin-bottom: 1rem;">Lentes Púrpura</h3>
+                        <p style="color: var(--text-dark); line-height: 1.8; margin-bottom: 1rem;">
+                            Somos una consultora especializada en <strong>prevención y atención de violencia en espacios laborales</strong>. Trabajamos con empresas para crear entornos de trabajo libres de violencia, discriminación y acoso.
+                        </p>
+                        <p style="color: var(--text-dark); line-height: 1.8;">
+                            Nuestro enfoque integra <strong>perspectiva de género, marcos legales actuales y mejores prácticas internacionales</strong> para brindar soluciones profesionales y efectivas.
+                        </p>
+                    </div>
+
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem;">
+                        <div style="background: linear-gradient(135deg, rgba(91, 33, 182, 0.05), rgba(124, 58, 237, 0.05)); padding: 2rem; border-radius: 15px; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">🎯</div>
+                            <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Nuestra Misión</h4>
+                            <p style="color: var(--text-dark); font-size: 0.95rem;">Crear espacios laborales seguros e inclusivos</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, rgba(91, 33, 182, 0.05), rgba(124, 58, 237, 0.05)); padding: 2rem; border-radius: 15px; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">👁️</div>
+                            <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Nuestra Visión</h4>
+                            <p style="color: var(--text-dark); font-size: 0.95rem;">Ser el puente entre las voces y la justicia laboral</p>
+                        </div>
+                        <div style="background: linear-gradient(135deg, rgba(91, 33, 182, 0.05), rgba(124, 58, 237, 0.05)); padding: 2rem; border-radius: 15px; text-align: center;">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">💜</div>
+                            <h4 style="color: var(--primary); margin-bottom: 0.5rem;">Nuestros Valores</h4>
+                            <p style="color: var(--text-dark); font-size: 0.95rem;">Confidencialidad, profesionalismo y perspectiva de género</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Cómo Funciona Section -->
+        <section id="como-funciona" style="padding: 5rem 0;">
+            <div style="max-width: 1000px; margin: 0 auto; padding: 0 2rem;">
+                <h2 style="font-family: 'Crimson Pro', serif; font-size: 3rem; color: var(--primary); text-align: center; margin-bottom: 3rem;">¿Cómo Funciona Iris?</h2>
+                
+                <div style="position: relative;">
+                    <div style="position: absolute; left: 30px; top: 0; bottom: 0; width: 3px; background: linear-gradient(180deg, var(--primary), var(--secondary));"></div>
+                    
+                    <div style="display: flex; flex-direction: column; gap: 2rem;">
+                        <div style="display: flex; gap: 1.5rem; align-items: start; position: relative;">
+                            <div style="min-width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3); z-index: 1;">1</div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 15px; flex: 1; box-shadow: 0 4px 20px rgba(91, 33, 182, 0.1);">
+                                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Recepción de Denuncia</h3>
+                                <p style="color: var(--text-dark); line-height: 1.6;">La denuncia llega a través de teléfono, WhatsApp o correo electrónico. Se abre un expediente de manera inmediata.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1.5rem; align-items: start; position: relative;">
+                            <div style="min-width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3); z-index: 1;">2</div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 15px; flex: 1; box-shadow: 0 4px 20px rgba(91, 33, 182, 0.1);">
+                                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Notificación</h3>
+                                <p style="color: var(--text-dark); line-height: 1.6;">Se notifica a las partes involucradas sobre el inicio del proceso de investigación.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1.5rem; align-items: start; position: relative;">
+                            <div style="min-width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3); z-index: 1;">3</div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 15px; flex: 1; box-shadow: 0 4px 20px rgba(91, 33, 182, 0.1);">
+                                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Investigación Profesional</h3>
+                                <p style="color: var(--text-dark); line-height: 1.6;">Equipo especializado realiza entrevistas confidenciales a todas las partes involucradas.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1.5rem; align-items: start; position: relative;">
+                            <div style="min-width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3); z-index: 1;">4</div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 15px; flex: 1; box-shadow: 0 4px 20px rgba(91, 33, 182, 0.1);">
+                                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Cierre y Recomendaciones</h3>
+                                <p style="color: var(--text-dark); line-height: 1.6;">Se cierra la investigación y se entrega el expediente completo con recomendaciones no vinculantes al Comité.</p>
+                            </div>
+                        </div>
+
+                        <div style="display: flex; gap: 1.5rem; align-items: start; position: relative;">
+                            <div style="min-width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-weight: bold; font-size: 1.5rem; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.3); z-index: 1;">5</div>
+                            <div style="background: white; padding: 1.5rem; border-radius: 15px; flex: 1; box-shadow: 0 4px 20px rgba(91, 33, 182, 0.1);">
+                                <h3 style="color: var(--primary); margin-bottom: 0.5rem;">Resolución del Comité</h3>
+                                <p style="color: var(--text-dark); line-height: 1.6;">El Comité de la empresa emite una resolución basada en las recomendaciones y el marco legal vigente.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Clientes Section -->
+        <section id="clientes" style="padding: 5rem 0; background: rgba(255, 255, 255, 0.5); border-radius: 30px; margin: 3rem 0;">
+            <div style="max-width: 1200px; margin: 0 auto; padding: 0 2rem;">
+                <h2 style="font-family: 'Crimson Pro', serif; font-size: 3rem; color: var(--primary); text-align: center; margin-bottom: 1.5rem;">Nuestros Clientes</h2>
+                <p style="text-align: center; color: var(--text-dark); font-size: 1.1rem; margin-bottom: 3rem; max-width: 700px; margin-left: auto; margin-right: auto;">
+                    Trabajamos con empresas líderes que comparten nuestro compromiso por espacios laborales seguros e inclusivos
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; align-items: center;">
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08); transition: all 0.3s ease;">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Google</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Microsoft</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">KPMG</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">EY</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Pfizer</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Honeywell</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Colgate</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">HSBC</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Santander</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">Marsh</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">OEA</p>
+                    </div>
+                    <div style="background: white; padding: 2rem; border-radius: 15px; text-align: center; box-shadow: 0 4px 15px rgba(91, 33, 182, 0.08);">
+                        <p style="color: var(--primary); font-weight: 600; font-size: 1.1rem;">+ Más empresas</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Casos de Éxito Section -->
+        <section id="casos-exito" style="padding: 5rem 0;">
+            <div style="max-width: 1000px; margin: 0 auto; padding: 0 2rem;">
+                <h2 style="font-family: 'Crimson Pro', serif; font-size: 3rem; color: var(--primary); text-align: center; margin-bottom: 3rem;">Casos de Éxito</h2>
+                
+                <div style="display: grid; gap: 2rem;">
+                    <div style="background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(91, 33, 182, 0.1); border-top: 5px solid var(--primary);">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--primary), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">💼</div>
+                            <div>
+                                <h3 style="color: var(--primary); font-size: 1.3rem; margin-bottom: 0.3rem;">Empresa Tecnológica Global</h3>
+                                <p style="color: rgba(91, 33, 182, 0.6); font-size: 0.9rem;">Sector Tecnología | 500+ empleados</p>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-dark); line-height: 1.7; margin-bottom: 1rem;">
+                            Implementamos una línea de denuncia completa que redujo los incidentes de acoso laboral en un <strong>65% en el primer año</strong>. Se capacitó a todo el equipo directivo y se actualizaron las políticas internas.
+                        </p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <span style="background: rgba(91, 33, 182, 0.1); color: var(--primary); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">Reducción 65%</span>
+                            <span style="background: rgba(91, 33, 182, 0.1); color: var(--primary); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">50 casos atendidos</span>
+                            <span style="background: rgba(91, 33, 182, 0.1); color: var(--primary); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">100% confidencialidad</span>
+                        </div>
+                    </div>
+
+                    <div style="background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(91, 33, 182, 0.1); border-top: 5px solid var(--secondary);">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--secondary), var(--accent)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🏦</div>
+                            <div>
+                                <h3 style="color: var(--primary); font-size: 1.3rem; margin-bottom: 0.3rem;">Institución Financiera</h3>
+                                <p style="color: rgba(91, 33, 182, 0.6); font-size: 0.9rem;">Sector Bancario | 1000+ empleados</p>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-dark); line-height: 1.7; margin-bottom: 1rem;">
+                            Asesoramos en la actualización de su protocolo de género y diversidad. Se atendieron <strong>30 casos en 6 meses</strong> con un índice de satisfacción del 92% entre los denunciantes.
+                        </p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <span style="background: rgba(124, 58, 237, 0.1); color: var(--secondary); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">92% satisfacción</span>
+                            <span style="background: rgba(124, 58, 237, 0.1); color: var(--secondary); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">30 casos resueltos</span>
+                            <span style="background: rgba(124, 58, 237, 0.1); color: var(--secondary); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">Protocolo actualizado</span>
+                        </div>
+                    </div>
+
+                    <div style="background: white; padding: 2.5rem; border-radius: 20px; box-shadow: 0 10px 30px rgba(91, 33, 182, 0.1); border-top: 5px solid var(--accent);">
+                        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.5rem;">
+                            <div style="width: 60px; height: 60px; background: linear-gradient(135deg, var(--accent), var(--secondary)); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem;">🏭</div>
+                            <div>
+                                <h3 style="color: var(--primary); font-size: 1.3rem; margin-bottom: 0.3rem;">Corporativo Manufacturero</h3>
+                                <p style="color: rgba(91, 33, 182, 0.6); font-size: 0.9rem;">Sector Industrial | 3 sedes</p>
+                            </div>
+                        </div>
+                        <p style="color: var(--text-dark); line-height: 1.7; margin-bottom: 1rem;">
+                            Implementación de línea multiempresa que permite gestionar denuncias de <strong>3 ubicaciones diferentes</strong>. Se estandarizaron procesos y se capacitó a los comités internos.
+                        </p>
+                        <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                            <span style="background: rgba(139, 92, 246, 0.1); color: var(--accent); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">3 sedes integradas</span>
+                            <span style="background: rgba(139, 92, 246, 0.1); color: var(--accent); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">Procesos estandarizados</span>
+                            <span style="background: rgba(139, 92, 246, 0.1); color: var(--accent); padding: 0.5rem 1rem; border-radius: 20px; font-size: 0.85rem;">Comités capacitados</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: linear-gradient(135deg, rgba(91, 33, 182, 0.05), rgba(124, 58, 237, 0.05)); border-radius: 20px;">
+                    <h3 style="color: var(--primary); font-size: 2rem; margin-bottom: 1rem;">Resultados que Transforman</h3>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 2rem; margin-top: 2rem;">
+                        <div>
+                            <div style="font-size: 3rem; font-weight: bold; color: var(--primary);">150+</div>
+                            <p style="color: var(--text-dark); font-weight: 500;">Casos Atendidos</p>
+                        </div>
+                        <div>
+                            <div style="font-size: 3rem; font-weight: bold; color: var(--primary);">95%</div>
+                            <p style="color: var(--text-dark); font-weight: 500;">Satisfacción</p>
+                        </div>
+                        <div>
+                            <div style="font-size: 3rem; font-weight: bold; color: var(--primary);">50+</div>
+                            <p style="color: var(--text-dark); font-weight: 500;">Empresas Confían en Nosotros</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <p>🌉 Iris | Conectamos y Escuchamos | Somos el Puente hacia la Justicia</p>
+            <p style="margin-top: 0.5rem;">Este es un sistema demo. En producción, conectar con base de datos segura y sistema de notificaciones.</p>
+        </footer>
+    </div>
+
+    <script>
+        // Mobile menu toggle
+        function toggleMenu() {
+            const navLinks = document.getElementById('navLinks');
+            navLinks.classList.toggle('active');
+        }
+
+        // Close mobile menu when clicking on a link
+        document.querySelectorAll('.nav-links a').forEach(link => {
+            link.addEventListener('click', () => {
+                document.getElementById('navLinks').classList.remove('active');
+            });
+        });
+
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Format tracking code input
+        function formatTrackingCode(input) {
+            let value = input.value.replace(/[^A-Z0-9]/gi, '').toUpperCase();
+            if (value.length > 5) {
+                value = value.slice(0, 5) + '-' + value.slice(5, 10);
+            }
+            input.value = value;
+        }
+
+        // Check tracking status
+        function checkStatus() {
+            const code = document.getElementById('trackingCodeInput').value;
+            
+            if (code.length < 11) {
+                alert('Por favor ingresa un código válido (formato: XXXXX-XXXXX)');
+                return;
+            }
+
+            // Simulación de diferentes estados basados en el código
+            const statuses = [
+                {
+                    name: 'Recibida',
+                    progress: 20,
+                    step: 'Paso 1 de 5: Denuncia recibida y expediente abierto',
+                    next: 'Se notificará a las partes involucradas en las próximas 24 horas.'
+                },
+                {
+                    name: 'En Investigación',
+                    progress: 40,
+                    step: 'Paso 2 de 5: Investigación en proceso',
+                    next: 'El equipo de investigación está realizando entrevistas con las partes involucradas.'
+                },
+                {
+                    name: 'Análisis',
+                    progress: 60,
+                    step: 'Paso 3 de 5: Análisis de evidencias',
+                    next: 'Se está preparando el expediente con hallazgos y recomendaciones.'
+                },
+                {
+                    name: 'En Comité',
+                    progress: 80,
+                    step: 'Paso 4 de 5: Revisión por Comité',
+                    next: 'El Comité está revisando el expediente para emitir una resolución.'
+                },
+                {
+                    name: 'Resuelta',
+                    progress: 100,
+                    step: 'Paso 5 de 5: Caso resuelto',
+                    next: 'El Comité ha emitido una resolución. Revisa tu correo si proporcionaste uno.'
+                }
+            ];
+
+            // Seleccionar estado basado en el código (simulación)
+            const hash = code.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
+            const statusIndex = hash % statuses.length;
+            const status = statuses[statusIndex];
+
+            // Mostrar resultados
+            document.getElementById('trackingForm').style.display = 'none';
+            document.getElementById('trackingResult').style.display = 'block';
+            document.getElementById('displayCode').textContent = code;
+            document.getElementById('displayStatus').textContent = status.name;
+            document.getElementById('progressBar').style.width = status.progress + '%';
+            document.getElementById('progressText').textContent = status.step;
+            
+            // Actualizar próximos pasos
+            const nextStepsDiv = document.querySelector('#trackingResult > div:last-of-type');
+            nextStepsDiv.querySelector('p').innerHTML = '<strong>Próximos pasos:</strong> ' + status.next;
+
+            // Fecha aleatoria
+            const daysAgo = Math.floor(Math.random() * 7) + 1;
+            document.getElementById('lastUpdate').textContent = `Hace ${daysAgo} día${daysAgo > 1 ? 's' : ''}`;
+
+            // Cambiar color del estado según el progreso
+            const statusDiv = document.getElementById('displayStatus');
+            if (status.progress === 100) {
+                statusDiv.style.background = '#27ae60';
+            } else if (status.progress >= 60) {
+                statusDiv.style.background = 'linear-gradient(135deg, var(--secondary), var(--accent))';
+            }
+        }
+
+        // Reset tracking form
+        function resetTracking() {
+            document.getElementById('trackingForm').style.display = 'block';
+            document.getElementById('trackingResult').style.display = 'none';
+            document.getElementById('trackingCodeInput').value = '';
+            
+            // Reset status color
+            document.getElementById('displayStatus').style.background = 'var(--primary)';
+        }
+
+        // Navigate to tracking section
+        function goToTracking() {
+            const code = document.getElementById('trackingCode').textContent;
+            document.querySelector('#rastrear').scrollIntoView({ behavior: 'smooth' });
+            setTimeout(() => {
+                document.getElementById('trackingCodeInput').value = code;
+                document.getElementById('trackingCodeInput').focus();
+            }, 800);
+        }
+
+        // Manejo del formulario
+        document.getElementById('denunciaForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Mostrar indicador de carga
+            const submitBtn = this.querySelector('button[type="submit"]');
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '⏳ Enviando...';
+            submitBtn.disabled = true;
+            
+            // Generar código de seguimiento aleatorio
+            const trackingCode = generateTrackingCode();
+            
+            // Recopilar datos del formulario
+            const formData = {
+                empresa: document.getElementById('empresa').value,
+                categoria: document.getElementById('categoria').value,
+                titulo: document.getElementById('titulo').value,
+                descripcion: document.getElementById('descripcion').value,
+                ubicacion: document.getElementById('ubicacion').value,
+                fecha: document.getElementById('fecha').value,
+                contacto: document.getElementById('contacto').value,
+                timestamp: new Date().toLocaleString('es-MX', { timeZone: 'America/Mexico_City' }),
+                trackingCode: trackingCode,
+                estado: 'Recibida'
+            };
+            
+            console.log('Denuncia enviada:', formData);
+            
+            // IMPORTANTE: Reemplaza esta URL con la URL de tu Google Apps Script Web App
+            const GOOGLE_SCRIPT_URL = 'TU_URL_DE_GOOGLE_APPS_SCRIPT_AQUI';
+            
+            // Enviar a Google Sheets
+            fetch(GOOGLE_SCRIPT_URL, {
+                method: 'POST',
+                mode: 'no-cors', // Necesario para Google Apps Script
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(formData)
+            })
+            .then(() => {
+                // Como usamos no-cors, siempre llegamos aquí
+                console.log('Datos enviados a Google Sheets');
+                
+                // Mostrar mensaje de éxito
+                document.getElementById('formContainer').style.display = 'none';
+                document.getElementById('successMessage').classList.add('show');
+                document.getElementById('trackingCode').textContent = trackingCode;
+            })
+            .catch(error => {
+                console.error('Error al enviar:', error);
+                alert('Hubo un error al enviar la denuncia. Por favor intenta nuevamente.');
+                submitBtn.innerHTML = originalText;
+                submitBtn.disabled = false;
+            });
+        });
+        
+        // Generar código de seguimiento único
+        function generateTrackingCode() {
+            const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+            let code = '';
+            for (let i = 0; i < 10; i++) {
+                if (i === 5) code += '-';
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            return code;
+        }
+        
+        // Manejo de archivos
+        document.getElementById('archivo').addEventListener('change', function(e) {
+            const files = e.target.files;
+            if (files.length > 0) {
+                const fileUpload = document.querySelector('.file-upload');
+                fileUpload.innerHTML = `
+                    <div class="file-icon">✅</div>
+                    <p><strong>${files.length} archivo(s) seleccionado(s)</strong></p>
+                    <p style="font-size: 0.85rem; color: rgba(0,0,0,0.5); margin-top: 0.5rem;">
+                        ${Array.from(files).map(f => f.name).join(', ')}
+                    </p>
+                    <p style="font-size: 0.85rem; color: var(--primary); margin-top: 0.5rem; cursor: pointer;">
+                        Haz clic para cambiar archivos
+                    </p>
+                `;
+            }
+        });
+    </script>
+</body>
+</html>
